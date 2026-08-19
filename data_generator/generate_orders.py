@@ -12,7 +12,7 @@ def generate_orders(
         fake: Faker,
         rng: np.random.Generator
     ) -> pd.DataFrame:
-
+    fake.add_provider(OrderStatusProvider)
     """
     Using Pareto Distribution to simulate disproportionate share of orders, i.e.,
     small set of customers order more.
