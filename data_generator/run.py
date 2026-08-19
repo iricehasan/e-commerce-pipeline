@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 from data_generator.generate_products import generate_products
+from data_generator.generate_customers import generate_customers
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +15,9 @@ NUM_DAYS = 7 # For now, generate data for 7 days
 
 INITIAL_PRODUCTS=50
 DAILY_NEW_PRODUCTS=2
+
+INITIAL_CUSTOMERS=200
+DAILY_NEW_CUSTOMERS=8
 
 def _write(df: pd.DataFrame, entity: str, date: str, base_dir: Path) -> None:
     out_dir = base_dir / entity
@@ -25,13 +29,14 @@ def run(base_dir: Path = Path("data")) -> None:
     all_products = pd.DataFrame(columns=["product_id", "name", "category", "price", "listed_date"])
 
     product_counter = 0
+    customer_counter = 0
 
     start = datetime.strptime(START_DATE, "%Y-%m-%d")
 
     for day_offset in range(NUM_DAYS):
         date = (start + timedelta(days=day_offset)).strftime("%Y-%m-%d")
         n_new_products = INITIAL_PRODUCTS if day_offset == 0 else DAILY_NEW_PRODUCTS
-
+        n_new_customers = INITIAL_CUSTOMERS if day_offset == 0 else DAILY_NEW_CUSTOMERS
 
         # products
         products_fake = make_faker(MASTER_SEED, "products", date)
@@ -39,6 +44,14 @@ def run(base_dir: Path = Path("data")) -> None:
         product_counter += n_new_products
         all_products = pd.concat([all_products, new_products], ignore_index=True)
         _write(new_products, "products", date, base_dir)
+
+        # customers
+        customers_fake = make_faker(MASTER_SEED, "customers", date)
+        new_customers = generate_customers(n_new_customers, customer_counter, customers_fake, date)
+        customer_counter += n_new_customers
+        all_customers = pd.concat([all_customers, new_customers], ignore_index=True)
+        _write(new_customers, "customers", date, base_dir)
+
     
 
 if __name__ == "__main__":
