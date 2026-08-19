@@ -17,3 +17,17 @@ class ProductCategoryProvider(BaseProvider):
     
     def product_category(self) -> str:
         return self.random_elements(elements=self._weights, length=1, use_weighting=True)[0]
+    
+class OrderStatusProvider(BaseProvider):
+    _weights = OrderedDict(
+        [
+            ("pending", 0.05),
+            ("shipped", 0.10),
+            ("delivered", 0.75),
+            ("cancelled", 0.05),
+            ("refunded", 0.05),
+        ]
+    )
+
+    def order_status(self) -> str:
+        return self.random_elements(elements=self._weights, length=1, use_weighting=True)[0]
