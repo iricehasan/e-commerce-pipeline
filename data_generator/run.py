@@ -34,7 +34,7 @@ def run(base_dir: Path = Path("data")) -> None:
     
     product_counter = 0
     customer_counter = 0
-    orders_counter = 0
+    order_counter = 0
 
     start = datetime.strptime(START_DATE, "%Y-%m-%d")
 
@@ -60,7 +60,7 @@ def run(base_dir: Path = Path("data")) -> None:
         # orders
         orders_fake = make_faker(MASTER_SEED, "orders", date)
         orders_rng = make_rng(MASTER_SEED, "orders", date)
-        new_orders = generate_orders(DAILY_ORDERS, orders_counter, all_customers, date, orders_fake, orders_rng)
+        new_orders = generate_orders(DAILY_ORDERS, order_counter, all_customers, date, orders_fake, orders_rng)
         order_counter += DAILY_ORDERS
         _write(new_orders, "orders", date, base_dir)
 
