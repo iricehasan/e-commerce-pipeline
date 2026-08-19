@@ -27,7 +27,8 @@ def _write(df: pd.DataFrame, entity: str, date: str, base_dir: Path) -> None:
 
 def run(base_dir: Path = Path("data")) -> None:
     all_products = pd.DataFrame(columns=["product_id", "name", "category", "price", "listed_date"])
-
+    all_customers = pd.DataFrame(columns=["customer_id", "name", "email", "country_code", "signup_date"])
+    
     product_counter = 0
     customer_counter = 0
 
