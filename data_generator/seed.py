@@ -1,5 +1,6 @@
 import hashlib
 from faker import Faker
+import numpy as np
 
 """
 Shared, stable seed for reproducing the same data for every generator module.
@@ -17,3 +18,7 @@ def make_faker(master_seed: int, entity: str, date: str) -> Faker:
     fake = Faker()
     fake.seed_instance(stable_seed(master_seed, entity, date))
     return fake
+
+def make_rng(master_seed: int, entity: str, date: str) -> np.random.Generator:
+    """Using Pareto Distribution for orders"""
+    return np.random.default_rng(stable_seed(master_seed, entity, date, "numpy"))
