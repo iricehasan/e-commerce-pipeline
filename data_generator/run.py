@@ -1,11 +1,12 @@
 from pathlib import Path
-from data_generator.seed import make_faker
+from data_generator.seed import make_faker, make_rng
 import logging
 import pandas as pd
 from datetime import datetime, timedelta
 
 from data_generator.generate_products import generate_products
 from data_generator.generate_customers import generate_customers
+from data_generator.generate_orders import generate_orders
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,8 @@ DAILY_NEW_PRODUCTS=2
 INITIAL_CUSTOMERS=200
 DAILY_NEW_CUSTOMERS=8
 
+DAILY_ORDERS = 150
+
 def _write(df: pd.DataFrame, entity: str, date: str, base_dir: Path) -> None:
     out_dir = base_dir / entity
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -31,6 +34,7 @@ def run(base_dir: Path = Path("data")) -> None:
     
     product_counter = 0
     customer_counter = 0
+    orders_counter = 0
 
     start = datetime.strptime(START_DATE, "%Y-%m-%d")
 
@@ -53,7 +57,13 @@ def run(base_dir: Path = Path("data")) -> None:
         all_customers = pd.concat([all_customers, new_customers], ignore_index=True)
         _write(new_customers, "customers", date, base_dir)
 
-    
+        # orders
+        orders_fake = make_faker(MASTER_SEED, "orders", date)
+        orders_rng = make_rng(MASTER_SEED, "orders", date)
+        new_orders = generate_orders(DAILY_ORDERS, orders_counter, all_customers, date, orders_fake, orders_rng)
+        order_counter += DAILY_ORDERS
+        _write(new_orders, "orders", date, base_dir)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
