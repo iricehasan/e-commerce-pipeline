@@ -44,3 +44,18 @@ class PaymentMethodProvider(BaseProvider):
 
     def payment_method(self) -> str:
         return self.random_elements(elements=self._weights, length=1, use_weighting=True)[0]
+
+
+class EventTypeProvider(BaseProvider):
+    _weights = OrderedDict(
+        [
+            ("page_view", 0.70),
+            ("product_view", 0.15),
+            ("add_to_cart", 0.08),
+            ("checkout_start", 0.04),
+            ("purchase", 0.03),
+        ]
+    )
+
+    def event_type(self) -> str:
+        return self.random_elements(elements=self._weights, length=1, use_weighting=True)[0]
