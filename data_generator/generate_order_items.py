@@ -6,12 +6,12 @@ from faker import Faker
 def generate_order_items(
     orders_df: pd.DataFrame,
     products_df: pd.DataFrame,
-    start_id: int,
+    counter: int,
     fake: Faker,
     rng: np.random.Generator,
 ) -> pd.DataFrame:
     rows = []
-    item_counter = start_id
+    item_counter = counter
     for order_id in orders_df["order_id"]:
         n_items = int(rng.integers(1, 5))
         chosen = products_df.sample(n=n_items, random_state=int(rng.integers(0, 2**31 - 1)))
