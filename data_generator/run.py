@@ -9,6 +9,7 @@ from data_generator.generate_customers import generate_customers
 from data_generator.generate_orders import generate_orders
 from data_generator.generate_order_items import generate_order_items, compute_order_totals
 from data_generator.generate_payments import generate_payments
+from data_generator.generate_events import generate_events
 
 from data_generator.inject_data_quality_issues import (
     inject_duplicate_orders,
@@ -32,6 +33,17 @@ DAILY_NEW_CUSTOMERS=8
 
 DAILY_ORDERS = 150
 
+DAILY_EVENTS = 1200
+
+
+ISSUE_RATES = {
+    "duplicate_orders": 0.05,
+    "missing_customer_ids": 0.02,
+    "inconsistent_country_codes": 0.03,
+    "malformed_dates": 0.01,
+    "invalid_amounts": 0.01,
+}
+
 def _write(df: pd.DataFrame, entity: str, date: str, base_dir: Path) -> None:
     out_dir = base_dir / entity
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -45,6 +57,9 @@ def run(base_dir: Path = Path("data")) -> None:
     product_counter = 0
     customer_counter = 0
     order_counter = 0
+    item_counter = 0
+    payment_counter = 0
+    event_counter = 0
 
     start = datetime.strptime(START_DATE, "%Y-%m-%d")
 
@@ -98,6 +113,13 @@ def run(base_dir: Path = Path("data")) -> None:
         payments = generate_payments(clean_orders_for_payment, payment_counter, payments_fake)
         payment_counter += len(payments)
         _write(payments, "payments", date, base_dir)
+
+        # events
+        events_fake = make_faker(MASTER_SEED, "events", date)
+        events_rng = make_rng(MASTER_SEED, "events", date)
+        events = generate_events(DAILY_EVENTS, event_counter, all_customers, date, events_fake, events_rng)
+        event_counter += DAILY_EVENTS
+        _write(events, "events", date, base_dir)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
