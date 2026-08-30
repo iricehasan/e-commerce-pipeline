@@ -85,9 +85,8 @@ def run(base_dir: Path = Path("data")) -> None:
         # orders
         orders_fake = make_faker(MASTER_SEED, "orders", date)
         orders_rng = make_rng(MASTER_SEED, "orders", date)
-        new_orders = generate_orders(DAILY_ORDERS, order_counter, all_customers, date, orders_fake, orders_rng)
+        orders = generate_orders(DAILY_ORDERS, order_counter, all_customers, date, orders_fake, orders_rng)
         order_counter += DAILY_ORDERS
-        _write(new_orders, "orders", date, base_dir)
 
         # order items
         items_rng = make_rng(MASTER_SEED, "order_items", date)
