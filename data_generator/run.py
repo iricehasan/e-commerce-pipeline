@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from data_generator.generate_products import generate_products
 from data_generator.generate_customers import generate_customers
 from data_generator.generate_orders import generate_orders
+from data_generator.generate_order_items import generate_order_items, compute_order_totals
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +65,11 @@ def run(base_dir: Path = Path("data")) -> None:
         order_counter += DAILY_ORDERS
         _write(new_orders, "orders", date, base_dir)
 
+        # order items
+        items_rng = make_rng(MASTER_SEED, "order_items", date)
+        order_items = generate_order_items(orders, all_products, item_counter, orders_fake, items_rng)
+        item_counter += len(order_items)
+        orders = compute_order_totals(orders, order_items)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
