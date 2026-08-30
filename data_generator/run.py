@@ -8,6 +8,15 @@ from data_generator.generate_products import generate_products
 from data_generator.generate_customers import generate_customers
 from data_generator.generate_orders import generate_orders
 from data_generator.generate_order_items import generate_order_items, compute_order_totals
+from data_generator.generate_payments import generate_payments
+
+from data_generator.inject_data_quality_issues import (
+    inject_duplicate_orders,
+    inject_missing_customer_ids,
+    inject_malformed_dates,
+    inject_invalid_amounts,
+    inject_inconsistent_country_codes
+)
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +79,25 @@ def run(base_dir: Path = Path("data")) -> None:
         order_items = generate_order_items(orders, all_products, item_counter, orders_fake, items_rng)
         item_counter += len(order_items)
         orders = compute_order_totals(orders, order_items)
+
+        # order related issues after totals are computed
+        issues_rng = make_rng(MASTER_SEED, "orders_issues", date)
+        orders = inject_duplicate_orders(orders, ISSUE_RATES["duplicate_orders"], issues_rng)
+        orders = inject_missing_customer_ids(orders, ISSUE_RATES["missing_customer_ids"], issues_rng)
+        orders = inject_malformed_dates(orders, ISSUE_RATES["malformed_dates"], issues_rng)
+        orders = inject_invalid_amounts(orders, ISSUE_RATES["invalid_amounts"], issues_rng)
+        
+        _write(orders, "orders", date, base_dir)
+        _write(order_items, "order_items", date, base_dir)
+
+        # payments
+        payments_fake = make_faker(MASTER_SEED, "payments", date)
+        # payments reference orders BEFORE issue injection
+        # since payments should exist for genuine orders not duplicate ones etc.
+        clean_orders_for_payment = orders.drop_duplicates(subset="order_id").dropna(subset=["total_amount"])
+        payments = generate_payments(clean_orders_for_payment, payment_counter, payments_fake)
+        payment_counter += len(payments)
+        _write(payments, "payments", date, base_dir)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
