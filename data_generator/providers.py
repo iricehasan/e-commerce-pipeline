@@ -31,3 +31,16 @@ class OrderStatusProvider(BaseProvider):
 
     def order_status(self) -> str:
         return self.random_elements(elements=self._weights, length=1, use_weighting=True)[0]
+
+class PaymentMethodProvider(BaseProvider):
+    _weights = OrderedDict(
+        [
+            ("credit_card", 0.60),
+            ("paypal", 0.25),
+            ("bank_transfer", 0.10),
+            ("gift_card", 0.05),
+        ]
+    )
+
+    def payment_method(self) -> str:
+        return self.random_elements(elements=self._weights, length=1, use_weighting=True)[0]
